@@ -41,26 +41,26 @@
                 <v-card-text>
                   <v-container>
                     <v-row>
+                      <template v-for="(field, key) in Object.keys(editedItem)">
                       <v-col
-                          cols="12"
-                          sm="6"
-                          md="4"
-                      >
-                        <v-text-field
-                            v-model="editedItem.name"
-                            label="Account name"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col
+                          v-if="field !== 'id'"
+                          :key="key"
                           cols="12"
                           sm="6"
                           md="4"
                       >
                         <v-checkbox
-                            v-model="editedItem.status"
+                            v-if="typeof editedItem[field] === 'boolean'"
+                            v-model="editedItem[field]"
                             label="Status"
                         ></v-checkbox>
+                        <v-text-field
+                            v-else
+                            v-model="editedItem[field]"
+                            :label="field"
+                        ></v-text-field>
                       </v-col>
+                      </template>
                     </v-row>
                   </v-container>
                 </v-card-text>

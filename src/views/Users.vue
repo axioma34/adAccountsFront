@@ -1,5 +1,5 @@
 <template>
-  <Crud :items="accounts" :item="item" :title="'Accounts'" :headers="headers" :url="url" />
+  <Crud :items="accounts" :item="item" :title="'Users'" :headers="headers" :url="url" />
 </template>
 
 <script>
@@ -7,21 +7,25 @@ import Crud from '@/components/Crud.vue'
 
 export default {
   components: { Crud },
-  name: "Accounts",
+  name: "Users",
   data: () => ({
     headers: [
       {
-        text: 'Name',
+        text: 'Email',
         align: 'start',
         sortable: false,
-        value: 'name',
+        value: 'email',
       },
-      {text: 'Status', value: 'status', sortable: false},
+      {text: 'Roles', value: 'roles', sortable: false},
+      {text: 'Name', value: 'name', sortable: false},
+      {text: 'Active', value: 'active', sortable: false},
       {text: 'Actions', value: 'actions', sortable: false},
     ],
     item: {
+      email: '',
+      roles: {},
       name: '',
-      status: true
+      active: true
     },
     accounts: [],
     url: '/user/'
