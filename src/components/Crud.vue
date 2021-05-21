@@ -40,6 +40,11 @@
 
                 <v-card-text>
                   <v-container>
+                    <v-form
+                        ref="form"
+                        v-model="valid"
+                        lazy-validation
+                    >
                     <v-row>
                       <template v-for="(field, key) in Object.keys(editedItem)">
                       <v-col
@@ -52,16 +57,19 @@
                         <v-checkbox
                             v-if="typeof editedItem[field] === 'boolean'"
                             v-model="editedItem[field]"
-                            label="Status"
+                            :label="field"
                         ></v-checkbox>
                         <v-text-field
                             v-else
                             v-model="editedItem[field]"
+                            :rules="rules && rules[field] ? rules[field] : []"
                             :label="field"
+                            :required="rules && rules[field]"
                         ></v-text-field>
                       </v-col>
                       </template>
                     </v-row>
+                    </v-form>
                   </v-container>
                 </v-card-text>
 
@@ -81,6 +89,14 @@
                   >
                     Save
                   </v-btn>
+                  <v-alert
+                      v-if="showError"
+                      dense
+                      outlined
+                      type="error"
+                  >
+                    Something went wrong. Check input data!
+                  </v-alert>
                 </v-card-actions>
               </v-card>
             </v-dialog>
@@ -133,7 +149,8 @@ export default {
     items: { type: Array, required: true },
     item: { type: Object, required: true},
     title: { type: String, default: 'My Crud'},
-    url: { type: String, required: true}
+    url: { type: String, required: true},
+    rules: { type: Object, default: () => {}}
   },
   data () {
     return {
@@ -142,6 +159,8 @@ export default {
       editedIndex: -1,
       editedItem: this.item,
       defaultItem: this.item,
+      valid: true,
+      showError: false
     }
   },
 
@@ -180,6 +199,7 @@ export default {
     },
 
     close() {
+      this.$refs.form.resetValidation()
       this.dialog = false
       this.$nextTick(() => {
         this.editedItem = Object.assign({}, this.defaultItem)
@@ -196,15 +216,23 @@ export default {
     },
 
     async save() {
+      const passValidation = this.$refs.form.validate()
+      if (!passValidation) { return }
       if (this.editedIndex > -1) {
         const response = await this.axios.post(this.url + this.items[this.editedIndex].id, this.editedItem)
-        Object.assign(this.items[this.editedIndex], response.data)
+        Object.assign(this.items[this.editedIndex], this.normalizeUser(response.data))
       } else {
         const response = await this.axios.post(this.url, this.editedItem)
-        this.items.push(response.data)
+        this.items.push(this.normalizeUser(response.data))
       }
       this.close()
     },
+    normalizeUser (user) {
+      user.is_admin = !!user.roles.includes('ROLE_ADMIN')
+      user.password = ''
+      delete user.roles
+      return user
+    }
   },
 }
 

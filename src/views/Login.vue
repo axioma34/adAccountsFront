@@ -96,7 +96,7 @@ export default {
           login: this.login,
           password: this.password
         })
-        this.$router.push("/accounts");
+        await this.$router.push("/accounts");
         this.showError = false
       } catch (error) {
         console.log(error)
